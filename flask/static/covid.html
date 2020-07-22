@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<title>COVID Detection</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
+<style>
+body,h1 {font-family: "Raleway", sans-serif}
+body, html {height: 100%}
+.bgimg {
+  background-image: url('https://litfl.com/wp-content/uploads/2020/04/Chest-x-ray-from-Canada%E2%80%99s-first-case-of-COVID-19.jpg');
+  min-height: 100%;
+  background-position: center;
+  background-size: cover;
+}
+.btn {
+  border: 2px solid black;
+  background-color: transparent;
+  color: black;
+  padding: 14px 28px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+/* Green */
+.success {
+  border-color: white;
+  color: white;
+}
+
+.success:hover {
+  background-color: rgba(255, 255, 255, 0.70);
+  color: black;
+
+}
+img {
+  max-width: 50%;
+  height: auto;
+}
+</style>
+<body>
+
+<div class="bgimg w3-display-container w3-animate-opacity w3-text-white">
+  <div class="w3-display-topleft w3-padding-large w3-xlarge">
+
+  </div>
+  <div class="w3-display-middle">
+    <h1 class="w3-jumbo w3-animate-top">Chest X-Ray Analysis</h1>
+    <hr class="w3-border-grey" style="margin:auto;width:40%">
+    <p class="w3-large w3-center">
+    <input class = "btn success" id="image-selector" type="file">
+    <button class = "btn success" id="predict-button">Predict</button></p>
+<p style="font-weight:bold">Predictions</p>
+    <p>COVID: <span id="1-prediction"></span></p>
+    <p>Normal: <span id="2-prediction"></span></p>
+    <p>Pneumonai: <span id="3-prediction"></span></p>
+    <img id="selected-image" src=""/>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script>
+        let base64Image;
+        $("#image-selector").change(function() {
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                let dataURL = reader.result;
+                $('#selected-image').attr("src", dataURL);
+                base64Image = dataURL.replace("data:image/png;base64,","");
+                console.log(base64Image);
+            }
+            reader.readAsDataURL($("#image-selector")[0].files[0]);
+            $("#1-prediction").text("");
+            $("#2-prediction").text("");
+            $("#3-prediction").text("");
+        });
+
+        $("#predict-button").click(function(){
+            let message = {
+                image: base64Image
+            }
+            console.log(message);
+            $.post("http://localhost:5000/predict", JSON.stringify(message), function(response){
+                $("#1-prediction").text(response.prediction.COVID.toFixed(6));
+                $("#2-prediction").text(response.prediction.Normal.toFixed(6));
+                $("#3-prediction").text(response.prediction.Pneumonia.toFixed(6));
+                console.log(response);
+            });
+        });
+    </script>
+  </div>
+  <div class="w3-display-bottomleft w3-padding-large">
+    Made by <a href="https://github.com/sharma-anubhav" target="_blank">Anubhav Sharma</a>
+  </div>
+</div>
+
+</body>
+</html>
